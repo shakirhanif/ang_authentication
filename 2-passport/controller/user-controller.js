@@ -1,37 +1,55 @@
+import passport from "passport";
 import User from "../model/User.js";
 import { hashCompare, passwordHash } from "../utils/bcrypt-encryption.js";
 
 export const registerUser = async (req, res) => {
   try {
-    const userExists = await User.findOne({ email: req.body.username });
-    if (userExists) {
-      return res.send("User Already Exists");
+    const registeredUser = await User.register(
+      {
+        username: req.body.username,
+      },
+      req.body.password
+    );
+    if (registeredUser) {
+      passport.authenticate("local")(req, res, () => {
+        res.redirect("/secrets");
+      });
     }
-    const hashedPassword = await passwordHash(req.body.password);
-    const newUser = new User({
-      email: req.body.username,
-      password: hashedPassword,
-    });
-    await newUser.save();
-    return res.render("secrets");
   } catch (error) {
-    console.log("error while creating user", error.message);
+    res.redirect("/register");
+    console.log("error while registering user...", error.message);
   }
 };
 
 export const loginUser = async (req, res) => {
+  const user = new User({
+    username: req.body.username,
+    password: req.body.password,
+  });
   try {
-    const userExists = await User.findOne({ email: req.body.username });
-    if (userExists) {
-      const match = await hashCompare(req.body.password, userExists.password);
-      if (match) {
-        return res.render("secrets");
+    req.login(user, (err) => {
+      if (!err) {
+        passport.authenticate("local")(req, res, () => {
+          res.redirect("/secrets");
+        });
       } else {
-        return res.send("password is incorrect");
+        res.redirect("/login");
       }
-    }
-    return res.send("please register");
+    });
   } catch (error) {
-    console.log("error while creating user", error.message);
+    console.log(error.message);
   }
+  // try {
+  //   const authenticate = User.authenticate();
+  //   const userLogin = await authenticate(req.body.username, req.body.password);
+  //   if (userLogin.user) {
+  //     passport.authenticate("local")(req, res, () => {
+  //       res.redirect("/secrets");
+  //     });
+  //   } else {
+  //     res.redirect("/login");
+  //   }
+  // } catch (error) {
+  //   console.log("error while login user...", error.message);
+  // }
 };
