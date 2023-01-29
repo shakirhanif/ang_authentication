@@ -6,6 +6,7 @@ import connection from "./database/db.js";
 import User from "./model/User.js";
 import session from "express-session";
 import passport from "passport";
+import passportConfig from "./middleware/passport-config-local.js";
 
 const app = express();
 app.use(express.static("public"));
@@ -22,10 +23,11 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 connection();
+passportConfig(passport);
 
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.use(User.createStrategy());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 app.use("/", route);
 const PORT = 3000 || process.env.PORT;
 app.listen(PORT, () => {
