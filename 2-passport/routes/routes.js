@@ -18,7 +18,7 @@ route.post(
   }
 );
 route.get("/register", (req, res) => {
-  res.render("register");
+  res.render("register", { message: req.flash("registerMessage") });
 });
 route.post(
   "/register",

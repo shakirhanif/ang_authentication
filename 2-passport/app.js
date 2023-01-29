@@ -7,6 +7,7 @@ import User from "./model/User.js";
 import session from "express-session";
 import passport from "passport";
 import passportConfig from "./middleware/passport-config-local.js";
+import flash from "connect-flash";
 
 const app = express();
 app.use(express.static("public"));
@@ -22,6 +23,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 connection();
 passportConfig(passport);
 
