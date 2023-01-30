@@ -1,7 +1,9 @@
 import express from "express";
 import passport from "passport";
+import { submitSecret } from "../controller/secret-controller.js";
 import { registerUserLocal } from "../controller/user-controller-local.js";
 import { loginUser, registerUser } from "../controller/user-controller.js";
+import Secret from "../model/Secret.js";
 
 const route = express.Router();
 route.get("/", (req, res) => {
@@ -30,9 +32,11 @@ route.post(
     res.redirect("/secrets");
   }
 );
-route.get("/secrets", (req, res) => {
+route.get("/secrets", async (req, res) => {
   if (req.isAuthenticated()) {
-    res.render("secrets", { user: req.user });
+    const userId = req.user._id;
+    const secrets = await Secret.find({ userId });
+    res.render("secrets", { user: req.user, secrets });
   } else {
     res.redirect("/login");
   }
@@ -56,4 +60,6 @@ route.get(
     res.redirect("/secrets");
   }
 );
+
+route.post("/submit", submitSecret);
 export default route;
