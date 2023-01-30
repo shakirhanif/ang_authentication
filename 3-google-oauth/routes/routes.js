@@ -18,6 +18,9 @@ route.post(
   }
 );
 route.get("/register", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.redirect("/secrets");
+  }
   res.render("register", { message: req.flash("registerMessage") });
 });
 route.post(
@@ -43,4 +46,14 @@ route.get("/logout", (req, res) => {
     }
   });
 });
+route.get("/auth", passport.authenticate("google", { scope: ["profile"] }));
+
+route.get(
+  "/auth/google/secrets",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/secrets");
+  }
+);
 export default route;

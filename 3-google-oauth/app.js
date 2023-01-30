@@ -8,6 +8,7 @@ import session from "express-session";
 import passport from "passport";
 import passportConfig from "./middleware/passport-config-local.js";
 import flash from "connect-flash";
+import passportGoogleConfig from "./middleware/google-oauth-config.js";
 
 const app = express();
 app.use(express.static("public"));
@@ -19,9 +20,6 @@ app.use(
     secret: "this is secret",
     resave: false,
     saveUninitialized: "false",
-    cookie: {
-      maxAge: 1000 * 60 * 10,
-    },
   })
 );
 app.use(passport.initialize());
@@ -29,7 +27,7 @@ app.use(passport.session());
 app.use(flash());
 connection();
 passportConfig(passport);
-
+passportGoogleConfig(passport);
 // passport.use(User.createStrategy());
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser());
